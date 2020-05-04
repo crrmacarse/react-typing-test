@@ -1,0 +1,109 @@
+.typing-test {
+  .typing-test__paper {
+    font-size: large;
+    min-height: 70vh;
+    font-family: Arial;
+    position: relative;
+
+    .typing-test__instruction {
+      clip-path: circle(7.5% at 100% 0);
+      position: absolute;
+      padding: 1rem;
+      width: 100%;
+      height: 100%;
+      transition: clip-path .5s ease-in-out;
+      background: $info-color;
+      overflow: auto;
+      font-family: $font-family;
+
+      li {
+        font-size: medium;
+      }
+
+      .typing-test__instruction__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+
+        small {
+          font-size: xx-large;
+          font-family: monospace;
+          font-weight: bold;
+          cursor: default;
+          margin-right: 1rem;
+
+          @media (max-width: $breakpoint-md) {
+            display: none;
+          }
+        }
+
+        * {
+          margin: 0;
+        }
+      }
+
+      > p {
+        font-size: medium;
+      }
+
+      &:hover {
+        clip-path: circle(85%);
+      }
+    }
+
+    .typing-test__textfield {
+      padding: 1rem;
+      max-width: 90vw;
+    }
+  }
+
+ .typing-test__score {
+   display: flex;
+   align-items: center;
+
+   p {
+     margin-right: 1rem;
+   }
+   span {
+    border-bottom: 0;
+    font-weight: bold;
+   }
+ }
+
+ input {
+  margin: 20px 0;
+  width: 100%;
+  padding: 8px 5px;
+  font-size: large;
+  outline: none;
+ }
+
+ span[class="correct"] {
+  color: green;
+  border-bottom: 0 !important;
+ }
+
+ span[class="incorrect"] {
+  color: red;
+  border-bottom: 0 !important;
+ }
+
+ span {
+  cursor: default;
+  border-bottom: 1px solid;
+ }
+
+ .typing-test__result {
+  color: gray;
+
+  span {
+    border-bottom: 0;
+   }
+ }
+
+ .typing-test__note {
+   font-size: small;
+   text-align: center;
+ }
+}
