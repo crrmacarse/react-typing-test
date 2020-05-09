@@ -1,31 +1,66 @@
 import React, {
-  KeyboardEvent, useState, ChangeEvent, useMemo, Fragment,
+  KeyboardEvent, useState, ChangeEvent, useMemo, Fragment, ReactNode, useEffect, useRef,
 } from 'react';
-import { Paper } from '@material-ui/core';
-import { generateNewText, computeScore } from './scripts';
-import Instruction from './instruction';
+import { Paper, Button } from '@material-ui/core';
+import { computeScore } from './scripts';
 
 const INITIAL_SCORE = { acc: '0%', wpm: '0 words/m', scored: false };
 
+export interface TypingTestProps {
+  generatedText: string,
+  generateNewText: () => void,
+  retrieveScore?: (acc: string, wpm: string) => void,
+  children: ReactNode,
+}
 /**
  * @BUG
  * - Problem with ENTER interaction. It should also clear the field
- * - Hitting space will skip check
+ * - counter still running
  */
-const TypingTest = ({ generatedText = '' }: { generatedText: string }) => {
+const TypingTest = ({
+  generatedText = '',
+  generateNewText,
+  retrieveScore,
+  children,
+}: TypingTestProps) => {
+  const arrText = generatedText.split(' ');
   const [input, setInput] = useState('');
   const [tracked, setTracked] = useState<string[]>([]);
   const [score, setScore] = useState(INITIAL_SCORE);
-  const [arrText, setArrText] = useState<string[]>(generatedText.split(' '));
+  const [counter, setCounter] = useState(0);
+  const inputRef = useRef(null);
 
-  // find better way. this should be generated outside
-  const handleFieldReset = () => {
-    const fields = generateNewText();
-
-    setArrText(fields.split(' '));
+  const handleStart = () => {
+    generateNewText();
+    setCounter(60);
+    setScore(INITIAL_SCORE);
+    setTracked([]);
+    setInput('');
+    inputRef.current.focus();
   };
 
-  // generates new object arr
+  const handleGenerateScore = () => {
+    setScore({ ...computeScore(arrText, tracked, true), scored: true });
+
+    if (typeof retrieveScore === 'function') {
+      retrieveScore(score.acc, score.wpm);
+    }
+
+    setCounter(0);
+    setInput('');
+  };
+
+  useEffect(() => {
+    if (counter === 0 && generatedText) {
+      handleGenerateScore();
+    }
+
+    const timer = counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
+
+    return () => clearInterval(timer);
+  }, [counter]);
+
+  // Generates new arr objects
   const fieldText = useMemo(() => {
     const newFieldText: any[] = [];
 
@@ -38,7 +73,7 @@ const TypingTest = ({ generatedText = '' }: { generatedText: string }) => {
     });
 
     return newFieldText;
-  }, [tracked, arrText]);
+  }, [tracked, generatedText]);
 
   // Listens to keyboard changes
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement >): void => {
@@ -50,25 +85,20 @@ const TypingTest = ({ generatedText = '' }: { generatedText: string }) => {
 
   // Listens to input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (score.scored) {
-      setScore(INITIAL_SCORE);
-      handleFieldReset();
-      setTracked([]);
-
+    if (counter === 0) {
       return;
     }
 
-    // exits on last
     if (tracked.length >= fieldText.length) {
-      setScore({ ...computeScore(arrText, tracked), scored: true });
-
+      handleGenerateScore();
       return;
     }
 
+    setScore({ ...computeScore(arrText, tracked), scored: false });
     setInput(e.target.value);
   };
 
-  // Fields
+  // Generated text
   const renderFieldText = fieldText.map((t, key) => (
     <span title={tracked[key]} key={key} className={`${t.isCorrect ? 'correct' : `${t.hasPassed && 'incorrect'}`}`}>{`${t.text} `}</span>
   ));
@@ -77,8 +107,6 @@ const TypingTest = ({ generatedText = '' }: { generatedText: string }) => {
   const renderResults = score.scored && (
     <div className="typing-test__result">
       {tracked.map((t, key) => <span key={key}>{`${t} `}</span>)}
-      <br />
-      <small>Note: You could hover individually to compare the input</small>
     </div>
   );
 
@@ -86,7 +114,7 @@ const TypingTest = ({ generatedText = '' }: { generatedText: string }) => {
     <div className="typing-test__score">
       <p>
         Time:
-        <span>{' 60s'}</span>
+        <span>{` ${counter}s`}</span>
       </p>
       <p>
         Accuracy:
@@ -107,12 +135,16 @@ const TypingTest = ({ generatedText = '' }: { generatedText: string }) => {
   );
 
   const renderPlaceHolder = () => {
-    if (tracked.length === 0) {
-      return 'Typing test will start upon first input here';
+    if (!generatedText) {
+      return 'Click Start to begin';
     }
 
     if (score.scored) {
-      return 'Done! You could find your score on the upper left corner. Do you want to try again? Press any key here';
+      return 'Done! You could find your score on the upper left corner.';
+    }
+
+    if (tracked.length === 0) {
+      return 'Type your input here';
     }
 
     return 'Typing Test is still ongoing..';
@@ -122,19 +154,31 @@ const TypingTest = ({ generatedText = '' }: { generatedText: string }) => {
     <Fragment>
       {renderScore}
       <Paper className="typing-test__paper">
-        <Instruction />
+        {children}
         <div className="typing-test__textfield">
           {renderFieldText}
           {renderResults}
         </div>
       </Paper>
-      <input
-        type="text"
-        placeholder={renderPlaceHolder()}
-        value={input}
-        onKeyDown={handleKeyDown}
-        onChange={handleChange}
-      />
+      <small>Note: You could hover on the words individually to compare the input</small>
+      <div className="typing-test__input">
+        <input
+          type="text"
+          ref={inputRef}
+          placeholder={renderPlaceHolder()}
+          value={input}
+          onKeyDown={handleKeyDown}
+          onChange={handleChange}
+        />
+        <Button
+          onClick={handleStart}
+          type="button"
+          variant="contained"
+          color="primary"
+        >
+          {tracked.length > 0 ? 'Restart' : 'Start'}
+        </Button>
+      </div>
       {renderNote}
     </Fragment>
   );

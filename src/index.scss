@@ -55,6 +55,30 @@
     .typing-test__textfield {
       padding: 1rem;
       max-width: 90vw;
+
+      span[class="correct"] {
+        color: green;
+        border-bottom: 0 !important;
+       }
+
+      span[class="incorrect"] {
+      color: red;
+      border-bottom: 0 !important;
+      }
+
+      span {
+      cursor: default;
+      border-bottom: 1px solid;
+      }
+
+      .typing-test__result {
+        margin-top: 0.5rem;
+        color: gray;
+
+        span {
+          border-bottom: 0;
+         }
+       }
     }
   }
 
@@ -71,36 +95,24 @@
    }
  }
 
- input {
-  margin: 20px 0;
-  width: 100%;
-  padding: 8px 5px;
-  font-size: large;
-  outline: none;
- }
+ .typing-test__input {
+   display: flex;
+   margin: 20px 0;
 
- span[class="correct"] {
-  color: green;
-  border-bottom: 0 !important;
- }
-
- span[class="incorrect"] {
-  color: red;
-  border-bottom: 0 !important;
- }
-
- span {
-  cursor: default;
-  border-bottom: 1px solid;
- }
-
- .typing-test__result {
-  color: gray;
-
-  span {
-    border-bottom: 0;
+   input {
+    margin-right: 1rem;
+    width: 100%;
+    padding: 8px 5px;
+    font-size: large;
+    outline: none;
+    border: 1px solid #cccccc;
    }
- }
+
+   button {
+     padding-right: 4rem;
+     padding-left: 4rem;
+   }
+  }
 
  .typing-test__note {
    font-size: small;

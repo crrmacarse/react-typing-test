@@ -1,23 +1,17 @@
 import React from 'react';
 import { shallow, ShallowWrapper } from 'enzyme';
-import PublicTypingTest from '.';
-import { generateNewText, computeScore } from './scripts';
+import { PublicTypingTest } from 'components/public/typing-test-demo';
+import { computeScore } from './scripts';
 
 let wrapper: ShallowWrapper;
 
 beforeEach(() => {
-  wrapper = shallow(<PublicTypingTest />);
+  wrapper = shallow(<PublicTypingTest generatedText="test" handleFetchGeneratedText={jest.fn()} />);
 });
 
 describe('<PublicTypingTest />', () => {
   it('renders', () => {
     expect(wrapper).not.toBeNull();
-  });
-
-  it('generates', () => {
-    const stringbox = generateNewText();
-
-    expect(stringbox).toBeTruthy();
   });
 
   it('matches asserted perfect score', () => {
@@ -28,12 +22,12 @@ describe('<PublicTypingTest />', () => {
     const tracked = ['test'];
     const generated = ['test'];
 
-    expect(computeScore(tracked, generated)).toMatchObject(assertedValue);
+    expect(computeScore(tracked, generated, true)).toMatchObject(assertedValue);
   });
 
   it('matches asserted score', () => {
     const assertedValue = {
-      acc: '30%',
+      acc: '44%',
       wpm: '1.80 words/m',
     };
     const tracked = ['test', 'unmatched'];
