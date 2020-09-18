@@ -1,7 +1,7 @@
 .typing-test {
   .typing-test__paper {
     font-size: large;
-    min-height: 70vh;
+    min-height: 50vh;
     font-family: Arial;
     position: relative;
 
@@ -67,8 +67,13 @@
       }
 
       span {
-      cursor: default;
-      border-bottom: 1px solid;
+        cursor: default;
+        border-bottom: 1px solid;
+      }
+
+      .typing-test__textfield--tracked {
+        margin-top: 2rem;
+        color: gray;
       }
 
       .typing-test__result {

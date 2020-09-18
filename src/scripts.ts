@@ -1,5 +1,3 @@
-import { sendEvent } from 'utils/ga';
-
 const SS_TYPING_TEST_SCORE = 'typingTestScore';
 
 const getTTScore = () => window.sessionStorage.getItem(SS_TYPING_TEST_SCORE);
@@ -52,11 +50,6 @@ export const computeScore = (generated: string[], trackedInput: string[], done =
     acc: `${accScore}%${isNewHighScore ? '(Your new highest record!)' : ''}`,
     wpm: `${grossWPM.toFixed(2)} words/m`,
   };
-
-  sendEvent({
-    category: 'Typing Test',
-    action: `Scored typing test of [acc: ${score.acc}] [wpm: ${score.wpm}]`,
-  });
 
   return score;
 };
